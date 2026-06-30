@@ -1,0 +1,833 @@
+{
+  "Application": {
+    "Screens": [
+      {
+        "Name": "IntroScreen",
+        "Components": [
+          {
+            "Type": "Image",
+            "Name": "image1",
+            "Width": 240,
+            "Height": 320,
+            "RelativeFilename": "intro_bg.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image2",
+            "X": 78,
+            "Y": 166,
+            "Width": 84,
+            "Height": 86,
+            "RelativeFilename": "Buttons-Control.png"
+          },
+          {
+            "Type": "TextArea",
+            "Name": "textArea1",
+            "X": 45,
+            "Y": 131,
+            "Width": 151,
+            "Height": 20,
+            "TextId": "__SingleUse_E3EO",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 69,
+              "Green": 34,
+              "Blue": 34
+            },
+            "AutoSize": true
+          },
+          {
+            "Type": "Image",
+            "Name": "image3",
+            "X": 196,
+            "Y": 6,
+            "Width": 40,
+            "Height": 41,
+            "RelativeFilename": "Buttons-note.png"
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "CLickToPlay",
+            "X": 88,
+            "Y": 175,
+            "Width": 63,
+            "Height": 63,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 63,
+                "Height": 63,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Green": 102,
+                  "Blue": 153
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Green": 51,
+                  "Blue": 102
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "Interaction1",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "CLickToPlay"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionBlock",
+              "ActionComponent": "GSMenu"
+            }
+          }
+        ]
+      },
+      {
+        "Name": "GSMenu",
+        "Components": [
+          {
+            "Type": "Image",
+            "Name": "image1",
+            "Y": 1,
+            "Width": 240,
+            "Height": 320,
+            "RelativeFilename": "menu_bg.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image3",
+            "X": 9,
+            "Y": 157,
+            "Width": 121,
+            "Height": 80,
+            "RelativeFilename": "btn_stage.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image5",
+            "X": 125,
+            "Y": 240,
+            "Width": 100,
+            "Height": 68,
+            "RelativeFilename": "btn_highScore.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image4",
+            "X": 135,
+            "Y": 116,
+            "Width": 100,
+            "Height": 55,
+            "RelativeFilename": "btn_InGame2.png"
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "btn_stage",
+            "X": 18,
+            "Y": 172,
+            "Width": 102,
+            "Height": 50,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 102,
+                "Height": 50,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Green": 102,
+                  "Blue": 153
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Green": 51,
+                  "Blue": 102
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "Play",
+            "X": 133,
+            "Y": 125,
+            "Width": 102,
+            "Height": 36,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 102,
+                "Height": 36,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Red": 14,
+                  "Green": 240,
+                  "Blue": 221
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Red": 51,
+                  "Green": 97,
+                  "Blue": 143
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "btn_highScore",
+            "X": 125,
+            "Y": 249,
+            "Width": 100,
+            "Height": 50,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 100,
+                "Height": 50,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Green": 102,
+                  "Blue": 153
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Green": 51,
+                  "Blue": 102
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
+          },
+          {
+            "Type": "Image",
+            "Name": "image6",
+            "Y": 258,
+            "Width": 60,
+            "Height": 62,
+            "RelativeFilename": "btn_back.png"
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "btn_back",
+            "X": 9,
+            "Y": 264,
+            "Width": 50,
+            "Height": 50,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 50,
+                "Height": 50,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Green": 102,
+                  "Blue": 153
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Green": 51,
+                  "Blue": 102
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "Interaction1",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "Play"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionNone",
+              "ActionComponent": "GSPlay"
+            }
+          },
+          {
+            "InteractionName": "Interaction2",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "btn_stage"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionBlock",
+              "ActionComponent": "Stage"
+            }
+          },
+          {
+            "InteractionName": "Interaction3",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "btn_back"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionBlock",
+              "ActionComponent": "IntroScreen"
+            }
+          }
+        ]
+      },
+      {
+        "Name": "GSPlay",
+        "Components": [
+          {
+            "Type": "Image",
+            "Name": "image1",
+            "X": -14,
+            "Y": -8,
+            "Width": 268,
+            "Height": 337,
+            "RelativeFilename": "game_bg.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "Gun",
+            "X": 75,
+            "Y": 241,
+            "Width": 90,
+            "Height": 112,
+            "RelativeFilename": "Gun.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image2",
+            "Y": 274,
+            "Width": 45,
+            "Height": 46,
+            "RelativeFilename": "Buttons-Menu.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "currentEgg",
+            "X": 104,
+            "Y": 258,
+            "Width": 32,
+            "Height": 32,
+            "RelativeFilename": "bubblepoint.png"
+          },
+          {
+            "Type": "TextArea",
+            "Name": "Score",
+            "Width": 92,
+            "Height": 20,
+            "TextId": "__SingleUse_B9WT",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 209,
+              "Green": 33,
+              "Blue": 89
+            },
+            "AutoSize": true
+          },
+          {
+            "Type": "Container",
+            "Name": "containerGrid",
+            "Y": 30,
+            "Width": 240,
+            "Height": 200,
+            "Components": []
+          },
+          {
+            "Type": "Image",
+            "Name": "nextEgg",
+            "X": 194,
+            "Y": 281,
+            "Width": 32,
+            "Height": 32,
+            "RelativeFilename": "green.png"
+          }
+        ],
+        "Interactions": []
+      },
+      {
+        "Name": "Stage",
+        "Components": [
+          {
+            "Type": "Image",
+            "Name": "image1",
+            "Width": 240,
+            "Height": 320,
+            "RelativeFilename": "menu_bg.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image2",
+            "X": 20,
+            "Y": 50,
+            "Width": 200,
+            "Height": 66,
+            "RelativeFilename": "button_rectangle_gloss.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image3",
+            "X": 20,
+            "Y": 142,
+            "Width": 200,
+            "Height": 66,
+            "RelativeFilename": "button_rectangle_gloss.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image4",
+            "X": 20,
+            "Y": 234,
+            "Width": 200,
+            "Height": 66,
+            "RelativeFilename": "button_rectangle_gloss.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image5",
+            "X": 24,
+            "Y": 52,
+            "Width": 60,
+            "Height": 62,
+            "RelativeFilename": "Buttons-star1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image6",
+            "X": 90,
+            "Y": 52,
+            "Width": 60,
+            "Height": 62,
+            "RelativeFilename": "Buttons-star2.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image7",
+            "X": 160,
+            "Y": 51,
+            "Width": 60,
+            "Height": 63,
+            "RelativeFilename": "Buttons-star3.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image8",
+            "X": 92,
+            "Y": 236,
+            "Width": 60,
+            "Height": 62,
+            "RelativeFilename": "Buttons-star1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image9",
+            "X": 60,
+            "Y": 142,
+            "Width": 60,
+            "Height": 62,
+            "RelativeFilename": "Buttons-star1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image10",
+            "X": 130,
+            "Y": 142,
+            "Width": 60,
+            "Height": 62,
+            "RelativeFilename": "Buttons-star2.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image11",
+            "X": 180,
+            "Y": 258,
+            "Width": 60,
+            "Height": 62,
+            "RelativeFilename": "btn_back.png"
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "Stage3",
+            "X": 24,
+            "Y": 50,
+            "Width": 196,
+            "Height": 64,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 196,
+                "Height": 64,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Green": 102,
+                  "Blue": 153
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Green": 51,
+                  "Blue": 102
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "Stage2",
+            "X": 24,
+            "Y": 142,
+            "Width": 196,
+            "Height": 66,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 196,
+                "Height": 66,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Green": 102,
+                  "Blue": 153
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Green": 51,
+                  "Blue": 102
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "Stage1",
+            "X": 20,
+            "Y": 238,
+            "Width": 152,
+            "Height": 60,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 152,
+                "Height": 60,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Green": 102,
+                  "Blue": 153
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Green": 51,
+                  "Blue": 102
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
+          },
+          {
+            "Type": "TextArea",
+            "Name": "textArea1",
+            "X": 46,
+            "Y": 14,
+            "Width": 152,
+            "Height": 20,
+            "TextId": "__SingleUse_UWU8",
+            "TextRotation": "0",
+            "AutoSize": true
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "backtoMenu_btn",
+            "X": 185,
+            "Y": 267,
+            "Width": 50,
+            "Height": 50,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 50,
+                "Height": 50,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Green": 102,
+                  "Blue": 153
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Green": 51,
+                  "Blue": 102
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "Interaction1",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "Stage3"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionBlock",
+              "ActionComponent": "GSPlay"
+            }
+          },
+          {
+            "InteractionName": "Interaction2",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "Stage2"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionBlock",
+              "ActionComponent": "GSPlay"
+            }
+          },
+          {
+            "InteractionName": "Interaction3",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "Stage1"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionBlock",
+              "ActionComponent": "GSPlay"
+            }
+          },
+          {
+            "InteractionName": "Interaction4",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "Stage3"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "setStage3"
+            }
+          },
+          {
+            "InteractionName": "Interaction5",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "Stage2"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "setStage2"
+            }
+          },
+          {
+            "InteractionName": "Interaction6",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "Stage1"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "setStage1"
+            }
+          },
+          {
+            "InteractionName": "Interaction7",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "backtoMenu_btn"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionNone",
+              "ActionComponent": "GSMenu"
+            }
+          }
+        ]
+      },
+      {
+        "Name": "Screen2",
+        "Components": [],
+        "Interactions": []
+      },
+      {
+        "Name": "Screen1",
+        "Components": [],
+        "Interactions": []
+      }
+    ],
+    "CustomContainerDefinitions": [],
+    "Name": "EmbeddedDinoShooter",
+    "Resolution": {
+      "Width": 240,
+      "Height": 320
+    },
+    "SelectedColorDepth": 16,
+    "StartupScreenName": "IntroScreen",
+    "SelectedStartupLanguage": "GB",
+    "TouchGfxPath": "../Middlewares/ST/touchgfx",
+    "UIPath": ".",
+    "AvailableColorDepths": [
+      16
+    ],
+    "AvailableLCDs": {
+      "16": "LCD16bpp"
+    },
+    "AvailableSections": [
+      "ExtFlashSection",
+      "IntFlashSection"
+    ],
+    "AvailableResolutions": [
+      {
+        "Width": 240,
+        "Height": 320
+      }
+    ],
+    "PhysicalButtons": [],
+    "FrameworkFeatures": {
+      "LCD16bpp": {
+        "Id": "LCD16bpp",
+        "IsEnabled": true
+      }
+    },
+    "GenerateAssetsCommand": "make -f simulator/gcc/Makefile assets -j8",
+    "PostGenerateCommand": "touchgfx update_project --project-file=simulator/msvs/Application.vcxproj",
+    "PostGenerateTargetCommand": "touchgfx update_project",
+    "CompileSimulatorCommand": "make -f simulator/gcc/Makefile -j8",
+    "RunSimulatorCommand": "build\\bin\\simulator.exe",
+    "CompileTargetCommandOverride": "make -f ../gcc/Makefile -j8",
+    "FlashTargetCommandOverride": "make -f ../gcc/Makefile flash",
+    "LandscapeSkinX": 0,
+    "LandscapeSkinY": 0,
+    "PortraitSkinX": 0,
+    "PortraitSkinY": 0,
+    "DisplayOrientation": "Portrait",
+    "Family": "STM32F4",
+    "SubFamily": "STM32F429/439",
+    "Toolchain": "STM32CubeIDE",
+    "Platform": "m4",
+    "ProjectFile": "../STM32F429I_DISCO_REV_D01.ioc",
+    "OptionalComponentsRoot": "../Middlewares/ST/touchgfx_components",
+    "OptionalComponents": [],
+    "AdditionalFeatures": [
+      "CWRVector",
+      "VectorFonts"
+    ]
+  },
+  "Version": "4.25.0",
+  "CreatedBy": "4.25.0"
+}
