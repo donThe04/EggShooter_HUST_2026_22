@@ -38,7 +38,7 @@
 #define SDRAM_TIMEOUT           ((uint32_t)0xFFFF)
 
 /**
-  * @brief  FMC SDRAM Mode definition register definesFF
+  * @brief  FMC SDRAM Mode definition register defines
   */
 #define SDRAM_MODEREG_BURST_LENGTH_1             ((uint16_t)0x0000)
 #define SDRAM_MODEREG_BURST_LENGTH_2             ((uint16_t)0x0001)
@@ -169,6 +169,7 @@ int main(void)
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
+  gSeed = HAL_GetTick();
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -770,12 +771,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA0 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
   /*Configure GPIO pins : PD12 PD13 */
   GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -788,7 +783,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
 /**
   * @brief  Perform the SDRAM external memory initialization sequence
   * @param  hsdram: SDRAM handle
@@ -809,6 +803,7 @@ static void BSP_SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_S
   HAL_SDRAM_SendCommand(hsdram, Command, SDRAM_TIMEOUT);
 
   /* Step 2: Insert 100 us minimum delay */
+  /* Inserted delay is equal to 1 ms due to systick time base unit (ms) */
   HAL_Delay(1);
 
   /* Step 3: Configure a PALL (precharge all) command */
@@ -845,6 +840,7 @@ static void BSP_SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_S
   HAL_SDRAM_SendCommand(hsdram, Command, SDRAM_TIMEOUT);
 
   /* Step 6: Set the refresh rate counter */
+  /* Set the device refresh rate */
   HAL_SDRAM_ProgramRefreshRate(hsdram, REFRESH_COUNT);
 }
 
@@ -868,6 +864,9 @@ void IOE_ITConfig(void)
 
 /**
   * @brief  IOE Writes single data operation.
+  * @param  Addr: I2C Address
+  * @param  Reg: Reg Address
+  * @param  Value: Data to be written
   */
 void IOE_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
 {
@@ -876,6 +875,9 @@ void IOE_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
 
 /**
   * @brief  IOE Reads single data.
+  * @param  Addr: I2C Address
+  * @param  Reg: Reg Address
+  * @retval The read data
   */
 uint8_t IOE_Read(uint8_t Addr, uint8_t Reg)
 {
@@ -884,6 +886,11 @@ uint8_t IOE_Read(uint8_t Addr, uint8_t Reg)
 
 /**
   * @brief  IOE Reads multiple data.
+  * @param  Addr: I2C Address
+  * @param  Reg: Reg Address
+  * @param  pBuffer: pointer to data buffer
+  * @param  Length: length of the data
+  * @retval 0 if no problems to read multiple data
   */
 uint16_t IOE_ReadMultiple(uint8_t Addr, uint8_t Reg, uint8_t *pBuffer, uint16_t Length)
 {
@@ -892,6 +899,7 @@ uint16_t IOE_ReadMultiple(uint8_t Addr, uint8_t Reg, uint8_t *pBuffer, uint16_t 
 
 /**
   * @brief  IOE Delay.
+  * @param  Delay in ms
   */
 void IOE_Delay(uint32_t Delay)
 {
@@ -900,6 +908,9 @@ void IOE_Delay(uint32_t Delay)
 
 /**
   * @brief  Writes a value in a register of the device through BUS.
+  * @param  Addr: Device address on BUS Bus.
+  * @param  Reg: The target register address to write
+  * @param  Value: The target register value to be written
   */
 static void I2C3_WriteData(uint8_t Addr, uint8_t Reg, uint8_t Value)
 {
@@ -907,14 +918,19 @@ static void I2C3_WriteData(uint8_t Addr, uint8_t Reg, uint8_t Value)
 
   status = HAL_I2C_Mem_Write(&hi2c3, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, &Value, 1, I2c3Timeout);
 
+  /* Check the communication status */
   if(status != HAL_OK)
   {
+    /* Re-Initialize the BUS */
     //I2Cx_Error();
   }
 }
 
 /**
   * @brief  Reads a register of the device through BUS.
+  * @param  Addr: Device address on BUS Bus.
+  * @param  Reg: The target register address to write
+  * @retval Data read at register address
   */
 static uint8_t I2C3_ReadData(uint8_t Addr, uint8_t Reg)
 {
@@ -923,15 +939,23 @@ static uint8_t I2C3_ReadData(uint8_t Addr, uint8_t Reg)
 
   status = HAL_I2C_Mem_Read(&hi2c3, Addr, Reg, I2C_MEMADD_SIZE_8BIT, &value, 1, I2c3Timeout);
 
+  /* Check the communication status */
   if(status != HAL_OK)
   {
+    /* Re-Initialize the BUS */
     //I2Cx_Error();
+
   }
   return value;
 }
 
 /**
   * @brief  Reads multiple data on the BUS.
+  * @param  Addr: I2C Address
+  * @param  Reg: Reg Address
+  * @param  pBuffer: pointer to read data buffer
+  * @param  Length: length of the data
+  * @retval 0 if no problems to read multiple data
   */
 static uint8_t I2C3_ReadBuffer(uint8_t Addr, uint8_t Reg, uint8_t *pBuffer, uint16_t Length)
 {
@@ -939,19 +963,24 @@ static uint8_t I2C3_ReadBuffer(uint8_t Addr, uint8_t Reg, uint8_t *pBuffer, uint
 
   status = HAL_I2C_Mem_Read(&hi2c3, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, pBuffer, Length, I2c3Timeout);
 
+  /* Check the communication status */
   if(status == HAL_OK)
   {
     return 0;
   }
   else
   {
+    /* Re-Initialize the BUS */
     //I2Cx_Error();
+
     return 1;
   }
 }
 
 /**
   * @brief  Reads 4 bytes from device.
+  * @param  ReadSize: Number of bytes to read (max 4 bytes)
+  * @retval Value read on the SPI
   */
 static uint32_t SPI5_Read(uint8_t ReadSize)
 {
@@ -960,8 +989,10 @@ static uint32_t SPI5_Read(uint8_t ReadSize)
 
   status = HAL_SPI_Receive(&hspi5, (uint8_t*) &readvalue, ReadSize, Spi5Timeout);
 
+  /* Check the communication status */
   if(status != HAL_OK)
   {
+    /* Re-Initialize the BUS */
     SPI5_Error();
   }
 
@@ -970,6 +1001,7 @@ static uint32_t SPI5_Read(uint8_t ReadSize)
 
 /**
   * @brief  Writes a byte to device.
+  * @param  Value: value to be written
   */
 static void SPI5_Write(uint16_t Value)
 {
@@ -977,8 +1009,10 @@ static void SPI5_Write(uint16_t Value)
 
   status = HAL_SPI_Transmit(&hspi5, (uint8_t*) &Value, 1, Spi5Timeout);
 
+  /* Check the communication status */
   if(status != HAL_OK)
   {
+    /* Re-Initialize the BUS */
     SPI5_Error();
   }
 }
@@ -988,12 +1022,16 @@ static void SPI5_Write(uint16_t Value)
   */
 static void SPI5_Error(void)
 {
+  /* De-initialize the SPI communication BUS */
   //HAL_SPI_DeInit(&SpiHandle);
+
+  /* Re- Initialize the SPI communication BUS */
   //SPIx_Init();
 }
 
 void LCD_IO_Init(void)
 {
+  /* Set or Reset the control line */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 }
@@ -1003,9 +1041,14 @@ void LCD_IO_Init(void)
   */
 void LCD_IO_WriteData(uint16_t RegValue)
 {
+  /* Set WRX to send data */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+
+  /* Reset LCD control line(/CS) and Send data */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
   SPI5_Write(RegValue);
+
+  /* Deselect: Chip Select high */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 }
 
@@ -1014,27 +1057,41 @@ void LCD_IO_WriteData(uint16_t RegValue)
   */
 void LCD_IO_WriteReg(uint8_t Reg)
 {
+  /* Reset WRX to send command */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
+
+  /* Reset LCD control line(/CS) and Send command */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
   SPI5_Write(Reg);
+
+  /* Deselect: Chip Select high */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 }
 
 /**
   * @brief  Reads register value.
+  * @param  RegValue Address of the register to read
+  * @param  ReadSize Number of bytes to read
+  * @retval Content of the register value
   */
 uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize)
 {
   uint32_t readvalue = 0;
 
+  /* Select: Chip Select low */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+
+  /* Reset WRX to send command */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
 
   SPI5_Write(RegValue);
 
   readvalue = SPI5_Read(ReadSize);
 
+  /* Set WRX to send data */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+
+  /* Deselect: Chip Select high */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 
   return readvalue;
@@ -1042,48 +1099,11 @@ uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize)
 
 /**
   * @brief  Wait for loop in ms.
+  * @param  Delay in ms.
   */
 void LCD_Delay(uint32_t Delay)
 {
   HAL_Delay(Delay);
-}
-
-// Đọc giá trị joystick 2 trục, trả về 0-255 mỗi trục
-void Joystick_Read(uint8_t *outX, uint8_t *outY)
-{
-    uint32_t val;
-
-    // Trục X - ADC1, channel 13
-    HAL_ADC_Start(&hadc1);
-    if (HAL_ADC_PollForConversion(&hadc1, 10) == HAL_OK)
-    {
-        val = HAL_ADC_GetValue(&hadc1);
-    }
-    else
-    {
-        val = 128;
-    }
-    HAL_ADC_Stop(&hadc1);
-    *outX = (uint8_t)val;
-
-    // Trục Y - ADC2, channel 5
-    HAL_ADC_Start(&hadc2);
-    if (HAL_ADC_PollForConversion(&hadc2, 10) == HAL_OK)
-    {
-        val = HAL_ADC_GetValue(&hadc2);
-    }
-    else
-    {
-        val = 128;
-    }
-    HAL_ADC_Stop(&hadc2);
-    *outY = (uint8_t)val;
-}
-
-uint8_t Button_IsPressed(void)
-{
-    // Nút User F429-DISCO: nhấn = mức HIGH
-    return (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) ? 1 : 0;
 }
 
 /* USER CODE END 4 */
