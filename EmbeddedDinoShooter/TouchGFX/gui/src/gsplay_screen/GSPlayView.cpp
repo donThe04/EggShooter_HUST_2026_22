@@ -18,7 +18,7 @@ static const int MIN_GROUP_TO_POP = 3;
 
 GSPlayView::GSPlayView()
 {
-    yOffset = -250;
+    yOffset = -100;
     isDropping = true;
     tickCounter = 0;
 
@@ -35,6 +35,121 @@ GSPlayView::GSPlayView()
 
     scrollTickCounter = 0;
     isGameOver = false;
+}
+
+void GSPlayView::pauseClicked()
+{
+    isPaused = true;
+    pauseContainer.setVisible(true);
+    pauseContainer.invalidate();
+}
+
+void GSPlayView::continueClicked()
+{
+    isPaused = false;
+
+    pauseContainer.setVisible(false);
+    pauseContainer.invalidate();
+}
+
+void GSPlayView::ResetGame()
+{
+    isPaused = false;
+    isGameOver = false;
+
+    yOffset = -250;
+    isDropping = true;
+    tickCounter = 0;
+    scrollTickCounter = 0;
+
+    isBulletFlying = false;
+
+    bulletX = 0.0f;
+    bulletY = 0.0f;
+    bulletVX = 0.0f;
+    bulletVY = 0.0f;
+
+    bullet.setVisible(false);
+    bullet.invalidate();
+
+    wasButtonPressed = false;
+
+    pauseContainer.setVisible(false);
+    pauseContainer.invalidate();
+
+    gameoverContainer.setVisible(false);
+    gameoverContainer.invalidate();
+
+    // =========================
+    // Khởi tạo lại lưới
+    // =========================
+    const int maxInitialRows = 3;
+
+    for(int r = 0; r < ROWS; r++)
+    {
+        for(int c = 0; c < COLS; c++)
+        {
+            if(r == 0 || r >= maxInitialRows)
+            {
+                grid[r][c] = EMPTY_CELL;
+                continue;
+            }
+
+            if(r == 1 && c == 0)
+            {
+                grid[r][c] = (Random() >> 16) % 4;
+            }
+            else
+            {
+                if(((Random() >> 16) % 100) < 70)
+                {
+                    if(c > 0)
+                        grid[r][c] = grid[r][c - 1];
+                    else
+                        grid[r][c] = grid[r - 1][c];
+                }
+                else
+                {
+                    grid[r][c] = (Random() >> 16) % 4;
+                }
+            }
+        }
+    }
+
+    // =========================
+    // Reset bóng hiện tại
+    // =========================
+    currentEggColor = (Random() >> 24) % 4;
+    SetEggBitmap(currentEgg, currentEggColor);
+
+    // Reset bóng kế tiếp
+    RollNextEgg();
+
+    // =========================
+    // Render lại
+    // =========================
+    RenderGrid();
+    UpdateAim();
+}
+
+void GSPlayView::restartClicked()
+{
+    ResetGame();
+}
+
+void GSPlayView::exitClicked()
+{
+    application().gotoGSMenuScreenNoTransition();
+}
+
+void GSPlayView::restartgameoverClicked()
+{
+    ResetGame();
+}
+
+void GSPlayView::exitgameoverClicked()
+{
+    application().gotoGSMenuScreenNoTransition();
 }
 
 uint32_t GSPlayView::Random()
@@ -78,6 +193,8 @@ void GSPlayView::setupScreen()
     // Chỉ lấp trứng cho một số hàng đầu (maxInitialRows), CÁC HÀNG CÒN LẠI ĐỂ TRỐNG
     // -> đảm bảo luôn có ô trống gần khu vực bắn để đạn snap vào, tránh bị "đè" lên quả cũ.
     const int maxInitialRows = 3; // có thể chỉnh 3-5 tùy độ khó mong muốn
+
+    oddOffset = false;
 
     for(int r = 0; r < ROWS; r++)
     {
@@ -143,6 +260,11 @@ void GSPlayView::setupScreen()
     SetEggBitmap(currentEgg, currentEggColor);
 
     RollNextEgg();
+
+    isPaused = false;
+
+    pauseContainer.setVisible(false);
+    pauseContainer.invalidate();
 }
 
 void GSPlayView::RenderGrid()
@@ -181,7 +303,9 @@ void GSPlayView::RenderGrid()
                 break;
             }
 
-            int x = c * CELL_W + ((r % 2) ? 16 : 0);
+            bool odd = ((r + (oddOffset ? 1 : 0)) % 2);
+
+            int x = c * CELL_W + (odd ? 16 : 0);
             int y = r * CELL_H + yOffset;
 
             eggs[index].setXY(x, y);
@@ -210,6 +334,8 @@ void GSPlayView::handleTickEvent()
     if(isGameOver)
         return;
 
+    if(isPaused)
+        return;
     // ----- ĐỌC JOYSTICK -----
     uint8_t joyX, joyY;
     Joystick_Read(&joyX, &joyY);
@@ -282,8 +408,8 @@ void GSPlayView::UpdateAim()
 {
     float rad = gunAngle * 3.1415926f / 180.0f;
 
-    int startX = 104;
-    int startY = 250;
+    int startX = currentEgg.getX() + 0.8*currentEgg.getWidth() / 2;
+    int startY = currentEgg.getY() + 0.8*currentEgg.getHeight() / 2;
 
     for(int i = 0; i < 8; i++)
     {
@@ -408,14 +534,19 @@ void GSPlayView::UpdateBullet()
         isBulletFlying = false;
         bullet.setVisible(false);
 
-        // 4. render grid
-        RenderGrid();
-
-        // 5. Kiểm tra nhóm cùng màu để nổ (PHẦN TRƯỚC ĐÂY BỊ THIẾU)
+        // 4. Kiểm tra nhóm cùng màu để nổ
         int groupRows[ROWS * COLS];
         int groupCols[ROWS * COLS];
-        int groupCount = FindConnectedGroup(tr, tc, bulletColor, groupRows, groupCols);
+        int groupCount = FindConnectedGroup(tr, tc, bulletColor,
+                                            groupRows, groupCols);
 
+        if(groupCount >= MIN_GROUP_TO_POP)
+        {
+            RemoveGroup(groupRows, groupCols, groupCount);
+        }
+
+        // 5. Chỉ render đúng 1 lần
+        RenderGrid();
         if(groupCount >= MIN_GROUP_TO_POP)
         {
             RemoveGroup(groupRows, groupCols, groupCount);
@@ -426,6 +557,8 @@ void GSPlayView::UpdateBullet()
         if(CheckGameOver())
         {
             isGameOver = true;
+            gameoverContainer.setVisible(true);
+            gameoverContainer.invalidate();
         }
 
         return;
@@ -508,7 +641,9 @@ void GSPlayView::PixelToCell(float x, float y, int &outRow, int &outCol)
     if(row < 0) row = 0;
     if(row >= ROWS) row = ROWS - 1;
 
-    float colOffset = (row % 2) ? 16.0f : 0.0f;
+    bool odd = ((row + (oddOffset ? 1 : 0)) % 2);
+
+    float colOffset = odd ? 16.0f : 0.0f;
     int col = (int)roundf((x - colOffset) / (float)CELL_W);
 
     if(col < 0) col = 0;
@@ -520,7 +655,9 @@ void GSPlayView::PixelToCell(float x, float y, int &outRow, int &outCol)
 
 void GSPlayView::CellToPixelCenter(int row, int col, float &outX, float &outY)
 {
-    float colOffset = (row % 2) ? 16.0f : 0.0f;
+	bool odd = ((row + (oddOffset ? 1 : 0)) % 2);
+
+	float colOffset = odd ? 16.0f : 0.0f;
 
     outX = containerGrid.getX()
          + col * CELL_W
@@ -572,34 +709,44 @@ bool GSPlayView::FindSnapCell(int hitRow, int hitCol,
     return found;
 }
 
-int GSPlayView::GetNeighbors(int row, int col, int outRows[6], int outCols[6])
+int GSPlayView::GetNeighbors(int row, int col,
+                             int outRows[6], int outCols[6])
 {
     int count = 0;
 
-    // Lân cận cùng hàng: trái, phải
-    int sameRowOffsets[2][2] = { {0, -1}, {0, 1} };
-
-    // Lân cận hàng trên/dưới: phụ thuộc parity (hàng chẵn/lẻ) do lưới lệch
-    // Hàng lẻ (offset +16, lệch phải so với hàng chẵn): hàng trên/dưới lân cận là (col, col+1)
-    // Hàng chẵn: hàng trên/dưới lân cận là (col-1, col)
-    int diagOffsets[2];
-    if(row % 2 == 0)
+    // Trái, phải
+    static const int sameRowOffsets[2][2] =
     {
-        diagOffsets[0] = -1; // col - 1
-        diagOffsets[1] = 0;  // col
+        {0, -1},
+        {0,  1}
+    };
+
+    // Xác định hàng này đang lệch hay không
+    bool isOddRow = ((row + (oddOffset ? 1 : 0)) % 2) != 0;
+
+    int diagOffsets[2];
+
+    if(!isOddRow)
+    {
+        // Hàng chẵn
+        diagOffsets[0] = -1;
+        diagOffsets[1] = 0;
     }
     else
     {
-        diagOffsets[0] = 0;  // col
-        diagOffsets[1] = 1;  // col + 1
+        // Hàng lẻ
+        diagOffsets[0] = 0;
+        diagOffsets[1] = 1;
     }
 
-    // Cùng hàng
+    // Trái, phải
     for(int i = 0; i < 2; i++)
     {
         int nr = row + sameRowOffsets[i][0];
         int nc = col + sameRowOffsets[i][1];
-        if(nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS)
+
+        if(nr >= 0 && nr < ROWS &&
+           nc >= 0 && nc < COLS)
         {
             outRows[count] = nr;
             outCols[count] = nc;
@@ -607,12 +754,14 @@ int GSPlayView::GetNeighbors(int row, int col, int outRows[6], int outCols[6])
         }
     }
 
-    // Hàng trên (row - 1)
+    // Hai ô phía trên
     for(int i = 0; i < 2; i++)
     {
         int nr = row - 1;
         int nc = col + diagOffsets[i];
-        if(nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS)
+
+        if(nr >= 0 && nr < ROWS &&
+           nc >= 0 && nc < COLS)
         {
             outRows[count] = nr;
             outCols[count] = nc;
@@ -620,12 +769,14 @@ int GSPlayView::GetNeighbors(int row, int col, int outRows[6], int outCols[6])
         }
     }
 
-    // Hàng dưới (row + 1)
+    // Hai ô phía dưới
     for(int i = 0; i < 2; i++)
     {
         int nr = row + 1;
         int nc = col + diagOffsets[i];
-        if(nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS)
+
+        if(nr >= 0 && nr < ROWS &&
+           nc >= 0 && nc < COLS)
         {
             outRows[count] = nr;
             outCols[count] = nc;
@@ -635,7 +786,6 @@ int GSPlayView::GetNeighbors(int row, int col, int outRows[6], int outCols[6])
 
     return count;
 }
-
 int GSPlayView::FindConnectedGroup(int row, int col, uint8_t color, int outRows[ROWS * COLS], int outCols[ROWS * COLS])
 {
     bool visited[ROWS][COLS];
@@ -789,6 +939,8 @@ void GSPlayView::AddNewRow()
         // TODO: nếu có màn Game Over / màn Menu riêng, gọi chuyển màn tại đây, ví dụ:
         // application().gotoGSMenuScreenBlockTransition();
     }
+
+    oddOffset = !oddOffset;
 }
 
 // Trả về true nếu hàng đáy cùng (ROWS - 1) đã có ít nhất 1 quả trứng -> thua

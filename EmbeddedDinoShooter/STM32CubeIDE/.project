@@ -595,6 +595,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_Gun.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/image_PausePanel.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_PausePanel.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/image_btn_InGame.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_btn_InGame.cpp</locationURI>
@@ -633,6 +638,11 @@
 			<name>Application/User/generated/image_dots.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_dots.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_gameOverPanel.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_gameOverPanel.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/image_game_bg.cpp</name>

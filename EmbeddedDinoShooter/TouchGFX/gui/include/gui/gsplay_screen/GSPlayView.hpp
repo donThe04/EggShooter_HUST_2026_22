@@ -13,8 +13,24 @@ public:
     virtual ~GSPlayView() {}
 
     virtual void setupScreen();
+
     virtual void tearDownScreen();
+
     virtual void handleTickEvent();
+
+    virtual void pauseClicked() override;
+
+    virtual void continueClicked() override;
+
+    virtual void restartClicked() override;
+
+    virtual void exitClicked() override;
+
+    virtual void restartgameoverClicked() override;
+
+    virtual void exitgameoverClicked() override;
+
+    void ResetGame();
 
     virtual void UpdateAim();
     touchgfx::Image aimDots[8];
@@ -26,6 +42,8 @@ public:
 private:
     uint32_t Random();
 
+    bool isPaused = false;
+
     static const int ROWS = 8;
     static const int COLS = 7;
 
@@ -33,6 +51,8 @@ private:
     static const int CELL_H = 24;
 
     static const int FINAL_OFFSET = 0;
+
+    bool oddOffset;
 
     // Giá trị đặc biệt nghĩa là "ô trống" (đã nổ hoặc chưa từng có quả)
     static const uint8_t EMPTY_CELL = 255;

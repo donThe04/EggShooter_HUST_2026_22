@@ -362,7 +362,7 @@
           },
           {
             "Type": "Image",
-            "Name": "image2",
+            "Name": "pauseImage",
             "Y": 274,
             "Width": 45,
             "Height": 46,
@@ -407,9 +407,343 @@
             "Width": 32,
             "Height": 32,
             "RelativeFilename": "green.png"
+          },
+          {
+            "Type": "Container",
+            "Name": "pauseContainer",
+            "X": 44,
+            "Y": 58,
+            "Width": 152,
+            "Height": 200,
+            "Visible": false,
+            "Components": [
+              {
+                "Type": "Image",
+                "Name": "PausePanel",
+                "X": 1,
+                "Width": 153,
+                "Height": 200,
+                "RelativeFilename": "PausePanel.png"
+              },
+              {
+                "Type": "FlexButton",
+                "Name": "flexContinue",
+                "X": 23,
+                "Y": 50,
+                "Width": 109,
+                "Height": 40,
+                "Alpha": 0,
+                "ButtonTrigger": {
+                  "Type": "ClickButtonTrigger"
+                },
+                "ButtonStyles": [
+                  {
+                    "Type": "BoxWithBorderButtonStyle",
+                    "Width": 109,
+                    "Height": 40,
+                    "LockToFlexButtonSize": true,
+                    "BorderSize": 5,
+                    "ColorReleased": {
+                      "Green": 102,
+                      "Blue": 153
+                    },
+                    "ColorPressed": {
+                      "Green": 153,
+                      "Blue": 204
+                    },
+                    "ColorBorderReleased": {
+                      "Green": 51,
+                      "Blue": 102
+                    },
+                    "ColorBorderPressed": {
+                      "Red": 51,
+                      "Green": 102,
+                      "Blue": 153
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "FlexButton",
+                "Name": "flexRestart",
+                "X": 31,
+                "Y": 102,
+                "Width": 90,
+                "Height": 29,
+                "Alpha": 0,
+                "ButtonTrigger": {
+                  "Type": "ClickButtonTrigger"
+                },
+                "ButtonStyles": [
+                  {
+                    "Type": "BoxWithBorderButtonStyle",
+                    "Width": 90,
+                    "Height": 29,
+                    "LockToFlexButtonSize": true,
+                    "BorderSize": 5,
+                    "ColorReleased": {
+                      "Green": 102,
+                      "Blue": 153
+                    },
+                    "ColorPressed": {
+                      "Green": 153,
+                      "Blue": 204
+                    },
+                    "ColorBorderReleased": {
+                      "Green": 51,
+                      "Blue": 102
+                    },
+                    "ColorBorderPressed": {
+                      "Red": 51,
+                      "Green": 102,
+                      "Blue": 153
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "FlexButton",
+                "Name": "flexExit",
+                "X": 32,
+                "Y": 141,
+                "Width": 90,
+                "Height": 31,
+                "Alpha": 0,
+                "ButtonTrigger": {
+                  "Type": "ClickButtonTrigger"
+                },
+                "ButtonStyles": [
+                  {
+                    "Type": "BoxWithBorderButtonStyle",
+                    "Width": 90,
+                    "Height": 31,
+                    "LockToFlexButtonSize": true,
+                    "BorderSize": 5,
+                    "ColorReleased": {
+                      "Green": 102,
+                      "Blue": 153
+                    },
+                    "ColorPressed": {
+                      "Green": 153,
+                      "Blue": 204
+                    },
+                    "ColorBorderReleased": {
+                      "Green": 51,
+                      "Blue": 102
+                    },
+                    "ColorBorderPressed": {
+                      "Red": 51,
+                      "Green": 102,
+                      "Blue": 153
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "pauseButton",
+            "X": 6,
+            "Y": 278,
+            "Width": 33,
+            "Height": 39,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 33,
+                "Height": 39,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Green": 102,
+                  "Blue": 153
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Green": 51,
+                  "Blue": 102
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
+          },
+          {
+            "Type": "Container",
+            "Name": "gameoverContainer",
+            "X": 39,
+            "Y": 41,
+            "Width": 155,
+            "Height": 189,
+            "Visible": false,
+            "Components": [
+              {
+                "Type": "Image",
+                "Name": "gameoverPanel",
+                "X": 2,
+                "Y": 4,
+                "Width": 153,
+                "Height": 185,
+                "RelativeFilename": "gameOverPanel.png"
+              },
+              {
+                "Type": "FlexButton",
+                "Name": "flexExitGameover",
+                "X": 36,
+                "Y": 131,
+                "Width": 84,
+                "Height": 33,
+                "Alpha": 0,
+                "ButtonTrigger": {
+                  "Type": "ClickButtonTrigger"
+                },
+                "ButtonStyles": [
+                  {
+                    "Type": "BoxWithBorderButtonStyle",
+                    "Width": 84,
+                    "Height": 33,
+                    "LockToFlexButtonSize": true,
+                    "BorderSize": 5,
+                    "ColorReleased": {
+                      "Green": 102,
+                      "Blue": 153
+                    },
+                    "ColorPressed": {
+                      "Green": 153,
+                      "Blue": 204
+                    },
+                    "ColorBorderReleased": {
+                      "Green": 51,
+                      "Blue": 102
+                    },
+                    "ColorBorderPressed": {
+                      "Red": 51,
+                      "Green": 102,
+                      "Blue": 153
+                    }
+                  }
+                ]
+              },
+              {
+                "Type": "FlexButton",
+                "Name": "flexRestartGameover",
+                "X": 36,
+                "Y": 96,
+                "Width": 84,
+                "Height": 23,
+                "Alpha": 0,
+                "ButtonTrigger": {
+                  "Type": "ClickButtonTrigger"
+                },
+                "ButtonStyles": [
+                  {
+                    "Type": "BoxWithBorderButtonStyle",
+                    "Width": 84,
+                    "Height": 23,
+                    "LockToFlexButtonSize": true,
+                    "BorderSize": 5,
+                    "ColorReleased": {
+                      "Green": 102,
+                      "Blue": 153
+                    },
+                    "ColorPressed": {
+                      "Green": 153,
+                      "Blue": 204
+                    },
+                    "ColorBorderReleased": {
+                      "Green": 51,
+                      "Blue": 102
+                    },
+                    "ColorBorderPressed": {
+                      "Red": 51,
+                      "Green": 102,
+                      "Blue": 153
+                    }
+                  }
+                ]
+              }
+            ]
           }
         ],
-        "Interactions": []
+        "Interactions": [
+          {
+            "InteractionName": "Interaction1",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "flexExit"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "exitClicked"
+            }
+          },
+          {
+            "InteractionName": "Interaction2",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "flexRestart"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "restartClicked"
+            }
+          },
+          {
+            "InteractionName": "Interaction3",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "flexContinue"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "continueClicked"
+            }
+          },
+          {
+            "InteractionName": "Interaction4",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "pauseButton"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "pauseClicked"
+            }
+          },
+          {
+            "InteractionName": "Interaction5",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "flexRestartGameover"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "restartgameoverClicked"
+            }
+          },
+          {
+            "InteractionName": "Interaction6",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "flexExitGameover"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "exitgameoverClicked"
+            }
+          }
+        ]
       },
       {
         "Name": "Stage",
