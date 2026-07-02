@@ -11,7 +11,7 @@ extern "C" void Joystick_Read(uint8_t *outX, uint8_t *outY);
 extern "C" uint8_t Button_IsPressed(void);
 
 // Tốc độ bay của viên bóng (pixel/tick)
-static const float BULLET_SPEED = 6.0f;
+static const float BULLET_SPEED = 4.0f;
 
 // Số quả tối thiểu trong 1 nhóm cùng màu để nổ
 static const int MIN_GROUP_TO_POP = 3;
@@ -32,6 +32,9 @@ GSPlayView::GSPlayView()
 
     currentEggColor = 0;
     nextEggColor = 0;
+
+    scrollTickCounter = 0;
+    isGameOver = false;
 }
 
 uint32_t GSPlayView::Random()
@@ -72,16 +75,20 @@ void GSPlayView::setupScreen()
     GSPlayViewBase::setupScreen();
 
     // Hàng 0 luôn để TRỐNG, làm vùng đệm để viên đạn luôn có chỗ dính ngay từ đầu game.
-    // Lưới các quả trứng "thật" bắt đầu từ hàng 1.
-    for(int c = 0; c < COLS; c++)
-    {
-        grid[0][c] = EMPTY_CELL;
-    }
+    // Chỉ lấp trứng cho một số hàng đầu (maxInitialRows), CÁC HÀNG CÒN LẠI ĐỂ TRỐNG
+    // -> đảm bảo luôn có ô trống gần khu vực bắn để đạn snap vào, tránh bị "đè" lên quả cũ.
+    const int maxInitialRows = 3; // có thể chỉnh 3-5 tùy độ khó mong muốn
 
-    for(int r = 1; r < ROWS; r++)
+    for(int r = 0; r < ROWS; r++)
     {
         for(int c = 0; c < COLS; c++)
         {
+            if(r == 0 || r >= maxInitialRows)
+            {
+                grid[r][c] = EMPTY_CELL;
+                continue;
+            }
+
             if(r == 1 && c == 0)
             {
                 grid[r][c] = (Random() >> 16) % 4;
@@ -199,6 +206,10 @@ void GSPlayView::RenderGrid()
 
 void GSPlayView::handleTickEvent()
 {
+    // ----- DỪNG TOÀN BỘ GAME NẾU ĐÃ THUA (trứng chạm đáy) -----
+    if(isGameOver)
+        return;
+
     // ----- ĐỌC JOYSTICK -----
     uint8_t joyX, joyY;
     Joystick_Read(&joyX, &joyY);
@@ -223,21 +234,44 @@ void GSPlayView::handleTickEvent()
     // ----- CẬP NHẬT VIÊN BÓNG ĐANG BAY -----
     UpdateBullet();
 
-    if(!isDropping)
-        return;
-
-    tickCounter++;
-
-    if(tickCounter >= 7)
+    // ----- HIỆU ỨNG TRƯỢT LƯỚI VÀO MÀN HÌNH LÚC BẮT ĐẦU GAME -----
+    if(isDropping)
     {
-        tickCounter = 0;
+        tickCounter++;
 
-        yOffset += 2;
-
-        if(yOffset >= FINAL_OFFSET)
+        if(tickCounter >= 7)
         {
-            yOffset = FINAL_OFFSET;
-            isDropping = false;
+            tickCounter = 0;
+
+            yOffset += 2;
+
+            if(yOffset >= FINAL_OFFSET)
+            {
+                yOffset = FINAL_OFFSET;
+                isDropping = false;
+            }
+
+            RenderGrid();
+        }
+
+        return; // trong lúc đang trượt vào, chưa spawn hàng mới
+    }
+
+    // ----- ĐÃ TRƯỢT VÀO XONG: TIẾP TỤC CUỘN XUỐNG LIÊN TỤC, MƯỢT TỪNG PIXEL -----
+    scrollTickCounter++;
+
+    if(scrollTickCounter >= SCROLL_TICK_INTERVAL)
+    {
+        scrollTickCounter = 0;
+
+        yOffset += 1; // cuộn thêm 1px mỗi lần -> mắt thấy trứng trôi đều, không giật cục
+
+        if(yOffset >= CELL_H)
+        {
+            // Đã cuộn đủ 1 hàng -> đẩy dữ liệu lưới xuống 1 hàng, sinh hàng mới trên đỉnh,
+            // rồi lùi yOffset lại đúng phần dư để việc cuộn tiếp tục liền mạch, không bị giật.
+            yOffset -= CELL_H;
+            AddNewRow();
         }
 
         RenderGrid();
@@ -266,6 +300,9 @@ void GSPlayView::UpdateAim()
 void GSPlayView::FireBullet()
 {
     if(isBulletFlying)
+        return;
+
+    if(isGameOver)
         return;
 
     float rad = gunAngle * 3.1415926f / 180.0f;
@@ -298,8 +335,102 @@ void GSPlayView::UpdateBullet()
     if(!isBulletFlying)
         return;
 
+    float oldX = bulletX;
+    float oldY = bulletY;
+
     bulletX += bulletVX;
     bulletY += bulletVY;
+
+    int hitRow, hitCol;
+
+    if(CheckBulletCollision(hitRow, hitCol))
+    {
+        int tr = -1, tc = -1;
+
+        // Bước 1: thử tìm ô trống trong 6 ô lân cận trực tiếp
+        if(!FindSnapCell(hitRow, hitCol, tr, tc))
+        {
+            // Bước 2 (an toàn): không tìm thấy lân cận trực tiếp trống
+            // -> tìm ô trống GẦN NHẤT trên toàn lưới (tuyệt đối không ghi đè
+            //    lên quả đang có, tránh làm mất dữ liệu / thay màu quả cũ)
+            float bestDist = 1e9f;
+            bool foundAny = false;
+
+            for(int r = 0; r < ROWS; r++)
+            {
+                for(int c = 0; c < COLS; c++)
+                {
+                    if(grid[r][c] != EMPTY_CELL)
+                        continue;
+
+                    float cx, cy;
+                    CellToPixelCenter(r, c, cx, cy);
+
+                    float dx = (bulletX + 16.0f) - cx;
+                    float dy = (bulletY + 16.0f) - cy;
+                    float distSq = dx * dx + dy * dy;
+
+                    if(distSq < bestDist)
+                    {
+                        bestDist = distSq;
+                        tr = r;
+                        tc = c;
+                        foundAny = true;
+                    }
+                }
+            }
+
+            // Trường hợp cực hiếm: lưới đã đặc kín 100% (không còn ô trống nào)
+            // -> lúc này mới đành chấp nhận hủy viên đạn (không ghi đè quả cũ).
+            if(!foundAny)
+            {
+                isBulletFlying = false;
+                bullet.setVisible(false);
+                bullet.invalidate();
+                return;
+            }
+        }
+
+        // 1. commit vào grid
+        grid[tr][tc] = bulletColor;
+
+        // 2. snap về đúng tâm ô (CHUẨN HOÁ POSITION)
+        float cx, cy;
+        CellToPixelCenter(tr, tc, cx, cy);
+
+        bulletX = cx - 16.0f;
+        bulletY = cy - 16.0f;
+
+        bullet.setXY((int)bulletX, (int)bulletY);
+        bullet.invalidate();
+
+        // 3. tắt bullet
+        isBulletFlying = false;
+        bullet.setVisible(false);
+
+        // 4. render grid
+        RenderGrid();
+
+        // 5. Kiểm tra nhóm cùng màu để nổ (PHẦN TRƯỚC ĐÂY BỊ THIẾU)
+        int groupRows[ROWS * COLS];
+        int groupCols[ROWS * COLS];
+        int groupCount = FindConnectedGroup(tr, tc, bulletColor, groupRows, groupCols);
+
+        if(groupCount >= MIN_GROUP_TO_POP)
+        {
+            RemoveGroup(groupRows, groupCols, groupCount);
+            RenderGrid();
+        }
+
+        // 6. Kiểm tra thua: nếu quả vừa dính nằm ở hàng đáy cùng -> DỪNG GAME
+        if(CheckGameOver())
+        {
+            isGameOver = true;
+        }
+
+        return;
+    }
+
 
     // Va chạm trái/phải màn hình -> nảy lại (đơn giản hoá: đảo vận tốc X)
     if(bulletX < 0.0f)
@@ -314,14 +445,14 @@ void GSPlayView::UpdateBullet()
     }
 
     // Kiểm tra va chạm với lưới hoặc "trần" trên cùng
-    if(CheckBulletCollision())
-    {
-        // Đã xử lý xong (dính lưới hoặc nổ nhóm), dừng viên đạn
-        isBulletFlying = false;
-        bullet.setVisible(false);
-        bullet.invalidate();
-        return;
-    }
+//    if(CheckBulletCollision())
+//    {
+//        // Đã xử lý xong (dính lưới hoặc nổ nhóm), dừng viên đạn
+//        isBulletFlying = false;
+////        bullet.setVisible(false);
+////        bullet.invalidate();
+//        return;
+//    }
 
     // Phòng hờ: nếu vì lý do gì đó viên đạn vượt qua cả vùng trần mà chưa được
     // CheckBulletCollision() bắt được (ví dụ yOffset thay đổi giữa lúc bắn),
@@ -390,9 +521,55 @@ void GSPlayView::PixelToCell(float x, float y, int &outRow, int &outCol)
 void GSPlayView::CellToPixelCenter(int row, int col, float &outX, float &outY)
 {
     float colOffset = (row % 2) ? 16.0f : 0.0f;
-    // +CELL_W/2, +CELL_H/2 để lấy tâm ô thay vì góc trên-trái
-    outX = col * (float)CELL_W + colOffset + (float)CELL_W / 2.0f;
-    outY = row * (float)CELL_H + yOffset + (float)CELL_H / 2.0f;
+
+    outX = containerGrid.getX()
+         + col * CELL_W
+         + colOffset
+         + CELL_W / 2.0f;
+
+    outY = containerGrid.getY()
+         + row * CELL_H
+         + yOffset
+         + CELL_H / 2.0f;
+}
+
+
+bool GSPlayView::FindSnapCell(int hitRow, int hitCol,
+                              int &targetRow, int &targetCol)
+{
+    int neighborRows[6], neighborCols[6];
+    int nCount = GetNeighbors(hitRow, hitCol, neighborRows, neighborCols);
+
+    float bestDist = 1e9f;
+    bool found = false;
+
+    for(int i = 0; i < nCount; i++)
+    {
+        int nr = neighborRows[i];
+        int nc = neighborCols[i];
+
+        // chỉ lấy ô trống
+        if(grid[nr][nc] != EMPTY_CELL)
+            continue;
+
+        float cx, cy;
+        CellToPixelCenter(nr, nc, cx, cy);
+
+        float dx = (bulletX + 16.0f) - cx;
+        float dy = (bulletY + 16.0f) - cy;
+
+        float distSq = dx * dx + dy * dy;
+
+        if(distSq < bestDist)
+        {
+            bestDist = distSq;
+            targetRow = nr;
+            targetCol = nc;
+            found = true;
+        }
+    }
+
+    return found;
 }
 
 int GSPlayView::GetNeighbors(int row, int col, int outRows[6], int outCols[6])
@@ -522,13 +699,21 @@ void GSPlayView::RemoveGroup(int rows[], int cols[], int count)
     }
 }
 
-bool GSPlayView::CheckBulletCollision()
+bool GSPlayView::CheckBulletCollision(int &hitRow, int &hitCol)
 {
-    float collideRadius = (float)CELL_H * 0.9f;
+    float bulletCX = bulletX + 16.0f;
+    float bulletCY = bulletY + 16.0f;
 
-    // ----- 1. Tìm ô ĐÃ CÓ QUẢ gần viên đạn nhất, trong bán kính va chạm -----
-    int hitRow = -1, hitCol = -1;
-    float bestHitDistSq = 1e9f;
+    // Bán kính va chạm ~ đúng kích thước thật của quả trứng (đường kính ~32px -> bán kính ~16px),
+    // cộng thêm chút dung sai (2px) để không quá gắt. Trước đây để 32.0f (gấp đôi kích thước thật)
+    // khiến viên đạn bị "hút dính" cả khi nhắm đúng vào khe hở giữa 2 quả -> bắn xuyên khe rất khó.
+    float collideRadius = 18.0f;
+
+    float bestDistSq = 1e9f;
+    bool found = false;
+
+    hitRow = -1;
+    hitCol = -1;
 
     for(int r = 0; r < ROWS; r++)
     {
@@ -540,97 +725,83 @@ bool GSPlayView::CheckBulletCollision()
             float cx, cy;
             CellToPixelCenter(r, c, cx, cy);
 
-            float dx = bulletX - cx;
-            float dy = bulletY - cy;
+            float dx = bulletCX - cx;
+            float dy = bulletCY - cy;
+
             float distSq = dx * dx + dy * dy;
 
-            if(distSq <= collideRadius * collideRadius && distSq < bestHitDistSq)
+            if(distSq <= collideRadius * collideRadius)
             {
-                bestHitDistSq = distSq;
-                hitRow = r;
-                hitCol = c;
+                if(distSq < bestDistSq)
+                {
+                    bestDistSq = distSq;
+                    hitRow = r;
+                    hitCol = c;
+                    found = true;
+                }
             }
         }
     }
 
-    // ----- 2. Kiểm tra chạm trần (vượt qua đỉnh hàng 0) -----
-    float ceilingY = (float)yOffset;
-    bool hitCeiling = (bulletY <= ceilingY + (float)CELL_H * 0.5f);
+    return found;
+}
 
-    if(hitRow == -1 && !hitCeiling)
-        return false; // chưa va chạm gì cả, tiếp tục bay
-
-    // ----- 3. Xác định ô ĐÍCH để gắn viên đạn -----
-    int targetRow, targetCol;
-
-    if(hitRow == -1)
+// Thêm 1 hàng trứng mới từ trên xuống: đẩy toàn bộ lưới xuống 1 hàng,
+// sinh hàng 0 (hàng mới) ngẫu nhiên, rồi kiểm tra thua nếu hàng đáy đã có trứng.
+void GSPlayView::AddNewRow()
+{
+    // 1. Đẩy toàn bộ các hàng xuống 1 hàng (hàng cuối cùng bị đẩy ra khỏi lưới)
+    for(int r = ROWS - 1; r > 0; r--)
     {
-        // Chỉ chạm trần, không chạm quả nào -> snap vào hàng 0 theo cột gần bulletX nhất
-        targetRow = 0;
-        float colOffset0 = 0.0f; // hàng 0 luôn offset = 0 (hàng chẵn)
-        targetCol = (int)roundf((bulletX - colOffset0) / (float)CELL_W);
-        if(targetCol < 0) targetCol = 0;
-        if(targetCol >= COLS) targetCol = COLS - 1;
-    }
-    else
-    {
-        // Chạm 1 quả tại (hitRow, hitCol). Ô đích phải là 1 trong các ô LÂN CẬN
-        // còn TRỐNG của (hitRow, hitCol), chọn ô gần vị trí viên đạn nhất.
-        int neighborRows[6], neighborCols[6];
-        int nCount = GetNeighbors(hitRow, hitCol, neighborRows, neighborCols);
-
-        int bestRow = -1, bestCol = -1;
-        float bestDist = 1e9f;
-
-        for(int i = 0; i < nCount; i++)
+        for(int c = 0; c < COLS; c++)
         {
-            int nr = neighborRows[i];
-            int nc = neighborCols[i];
+            grid[r][c] = grid[r - 1][c];
+        }
+    }
 
-            if(grid[nr][nc] != EMPTY_CELL)
-                continue; // chỉ xét ô trống
-
-            float ncx, ncy;
-            CellToPixelCenter(nr, nc, ncx, ncy);
-            float ddx = bulletX - ncx;
-            float ddy = bulletY - ncy;
-            float d = ddx * ddx + ddy * ddy;
-
-            if(d < bestDist)
+    // 2. Sinh hàng 0 (hàng mới trên cùng) - dùng cùng cách random như setupScreen
+    for(int c = 0; c < COLS; c++)
+    {
+        if(c == 0)
+        {
+            grid[0][c] = (Random() >> 16) % 4;
+        }
+        else
+        {
+            if(((Random() >> 16) % 100) < 70)
             {
-                bestDist = d;
-                bestRow = nr;
-                bestCol = nc;
+                grid[0][c] = grid[0][c - 1];
+            }
+            else
+            {
+                grid[0][c] = (Random() >> 16) % 4;
             }
         }
-
-        if(bestRow == -1)
-        {
-            // Không có ô trống lân cận nào (lưới đặc kín quanh điểm va chạm) -> bỏ qua
-            return false;
-        }
-
-        targetRow = bestRow;
-        targetCol = bestCol;
     }
 
-    // ----- Gắn viên đạn vào ô đích -----
-    grid[targetRow][targetCol] = bulletColor;
+    // (Không cần gọi RenderGrid() ở đây nữa - handleTickEvent() sẽ gọi lại
+    //  ngay sau khi hàm này return, tránh render trùng lặp trong cùng 1 tick.)
 
-    RenderGrid();
-
-    // ----- Kiểm tra nhóm cùng màu để nổ -----
-    int groupRows[ROWS * COLS];
-    int groupCols[ROWS * COLS];
-    int groupCount = FindConnectedGroup(targetRow, targetCol, grid[targetRow][targetCol], groupRows, groupCols);
-
-    if(groupCount >= MIN_GROUP_TO_POP)
+    // 3. Kiểm tra thua: nếu hàng đáy cùng (ROWS - 1) đã có trứng -> DỪNG GAME
+    if(CheckGameOver())
     {
-        RemoveGroup(groupRows, groupCols, groupCount);
-        RenderGrid();
+        isGameOver = true;
+        // TODO: nếu có màn Game Over / màn Menu riêng, gọi chuyển màn tại đây, ví dụ:
+        // application().gotoGSMenuScreenBlockTransition();
     }
+}
 
-    return true;
+// Trả về true nếu hàng đáy cùng (ROWS - 1) đã có ít nhất 1 quả trứng -> thua
+bool GSPlayView::CheckGameOver()
+{
+    for(int c = 0; c < COLS; c++)
+    {
+        if(grid[ROWS - 1][c] != EMPTY_CELL)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void GSPlayView::tearDownScreen()

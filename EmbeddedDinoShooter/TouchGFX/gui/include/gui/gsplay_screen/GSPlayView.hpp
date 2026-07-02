@@ -46,6 +46,17 @@ private:
 
     uint32_t tickCounter;
 
+    // ----- Trứng liên tục cuộn xuống mượt (từng pixel), không phải nhảy cả hàng -----
+    // Cứ mỗi SCROLL_TICK_INTERVAL tick thì yOffset += 1px; khi đủ 1 CELL_H thì
+    // mới đẩy dữ liệu lưới xuống 1 hàng (AddNewRow) -> cảm giác trứng trôi liên tục đều đặn.
+    // Tốc độ 1 hàng mới = SCROLL_TICK_INTERVAL * CELL_H (tick). Giảm số này để trứng rơi nhanh hơn.
+    static const uint32_t SCROLL_TICK_INTERVAL = 25;
+    uint32_t scrollTickCounter;
+    bool isGameOver;
+
+    void AddNewRow();
+    bool CheckGameOver();
+
     // ----- Viên bóng bắn ra -----
     touchgfx::Image bullet;
     bool isBulletFlying;
@@ -74,8 +85,7 @@ private:
 
     // Kiểm tra viên đạn có va chạm với quả nào trong lưới hoặc "trần" trên cùng không
     // Trả về true nếu có va chạm (và đã xử lý xong: dính lưới hoặc nổ nhóm)
-    bool CheckBulletCollision();
-
+    bool CheckBulletCollision(int &hitRow, int &hitCol);
     // Lấy danh sách 6 ô lân cận hợp lệ của (row, col) trong hex-grid lệch hàng
     // outNeighbors phải có sức chứa >= 6, trả về số lượng lân cận hợp lệ
     int GetNeighbors(int row, int col, int outRows[6], int outCols[6]);
@@ -84,6 +94,7 @@ private:
     // outRows/outCols là buffer đủ lớn (ROWS*COLS), trả về số ô tìm được
     int FindConnectedGroup(int row, int col, uint8_t color, int outRows[ROWS * COLS], int outCols[ROWS * COLS]);
 
+    bool FindSnapCell(int hitRow, int hitCol,int &targetRow, int &targetCol);
     // Xoá 1 nhóm ô khỏi lưới (set EMPTY_CELL + ẩn Image tương ứng)
     void RemoveGroup(int rows[], int cols[], int count);
 };
