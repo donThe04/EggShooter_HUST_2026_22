@@ -672,6 +672,22 @@
                     }
                   }
                 ]
+              },
+              {
+                "Type": "TextArea",
+                "Name": "totalScore",
+                "X": 32,
+                "Y": 55,
+                "Width": 92,
+                "Height": 20,
+                "TextId": "__SingleUse_R3XR",
+                "TextRotation": "0",
+                "Color": {
+                  "Red": 250,
+                  "Green": 245,
+                  "Blue": 245
+                },
+                "AutoSize": true
               }
             ]
           }
