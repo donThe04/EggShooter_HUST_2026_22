@@ -35,6 +35,7 @@ GSPlayView::GSPlayView()
 
     scrollTickCounter = 0;
     isGameOver = false;
+    currentScore = 0;
 }
 
 void GSPlayView::pauseClicked()
@@ -56,8 +57,9 @@ void GSPlayView::ResetGame()
 {
     isPaused = false;
     isGameOver = false;
+    currentScore = 0;
 
-    yOffset = -250;
+    yOffset = -100;
     isDropping = true;
     tickCounter = 0;
     scrollTickCounter = 0;
@@ -83,38 +85,7 @@ void GSPlayView::ResetGame()
     // =========================
     // Khởi tạo lại lưới
     // =========================
-    const int maxInitialRows = 3;
-
-    for(int r = 0; r < ROWS; r++)
-    {
-        for(int c = 0; c < COLS; c++)
-        {
-            if(r == 0 || r >= maxInitialRows)
-            {
-                grid[r][c] = EMPTY_CELL;
-                continue;
-            }
-
-            if(r == 1 && c == 0)
-            {
-                grid[r][c] = (Random() >> 16) % 4;
-            }
-            else
-            {
-                if(((Random() >> 16) % 100) < 70)
-                {
-                    if(c > 0)
-                        grid[r][c] = grid[r][c - 1];
-                    else
-                        grid[r][c] = grid[r - 1][c];
-                }
-                else
-                {
-                    grid[r][c] = (Random() >> 16) % 4;
-                }
-            }
-        }
-    }
+    InitializeGrid();
 
     // =========================
     // Reset bóng hiện tại
@@ -130,6 +101,7 @@ void GSPlayView::ResetGame()
     // =========================
     RenderGrid();
     UpdateAim();
+    UpdateScoreUI();
 }
 
 void GSPlayView::restartClicked()
@@ -189,43 +161,7 @@ void GSPlayView::setupScreen()
 {
     GSPlayViewBase::setupScreen();
 
-    // Hàng 0 luôn để TRỐNG, làm vùng đệm để viên đạn luôn có chỗ dính ngay từ đầu game.
-    // Chỉ lấp trứng cho một số hàng đầu (maxInitialRows), CÁC HÀNG CÒN LẠI ĐỂ TRỐNG
-    // -> đảm bảo luôn có ô trống gần khu vực bắn để đạn snap vào, tránh bị "đè" lên quả cũ.
-    const int maxInitialRows = 3; // có thể chỉnh 3-5 tùy độ khó mong muốn
-
-    oddOffset = false;
-
-    for(int r = 0; r < ROWS; r++)
-    {
-        for(int c = 0; c < COLS; c++)
-        {
-            if(r == 0 || r >= maxInitialRows)
-            {
-                grid[r][c] = EMPTY_CELL;
-                continue;
-            }
-
-            if(r == 1 && c == 0)
-            {
-                grid[r][c] = (Random() >> 16) % 4;
-            }
-            else
-            {
-                if(((Random() >> 16) % 100) < 70)
-                {
-                    if(c > 0)
-                        grid[r][c] = grid[r][c - 1];
-                    else
-                        grid[r][c] = grid[r - 1][c];
-                }
-                else
-                {
-                    grid[r][c] = (Random() >> 16) % 4;
-                }
-            }
-        }
-    }
+    InitializeGrid();
 
     int index = 0;
 
@@ -265,6 +201,9 @@ void GSPlayView::setupScreen()
 
     pauseContainer.setVisible(false);
     pauseContainer.invalidate();
+
+    currentScore = 0;
+    UpdateScoreUI();
 }
 
 void GSPlayView::RenderGrid()
@@ -543,20 +482,19 @@ void GSPlayView::UpdateBullet()
         if(groupCount >= MIN_GROUP_TO_POP)
         {
             RemoveGroup(groupRows, groupCols, groupCount);
+            currentScore += groupCount * 10;
+            UpdateScoreUI();
         }
 
         // 5. Chỉ render đúng 1 lần
         RenderGrid();
-        if(groupCount >= MIN_GROUP_TO_POP)
-        {
-            RemoveGroup(groupRows, groupCols, groupCount);
-            RenderGrid();
-        }
 
         // 6. Kiểm tra thua: nếu quả vừa dính nằm ở hàng đáy cùng -> DỪNG GAME
         if(CheckGameOver())
         {
             isGameOver = true;
+            presenter->saveHighScore(currentScore);
+            UpdateScoreUI();
             gameoverContainer.setVisible(true);
             gameoverContainer.invalidate();
         }
@@ -617,6 +555,8 @@ void GSPlayView::UpdateBullet()
             if(groupCount >= MIN_GROUP_TO_POP)
             {
                 RemoveGroup(groupRows, groupCols, groupCount);
+                currentScore += groupCount * 10;
+                UpdateScoreUI();
                 RenderGrid();
             }
         }
@@ -909,23 +849,51 @@ void GSPlayView::AddNewRow()
         }
     }
 
-    // 2. Sinh hàng 0 (hàng mới trên cùng) - dùng cùng cách random như setupScreen
+    // 2. Sinh hàng 0 (hàng mới trên cùng) tuân theo quy tắc cụm cùng màu tối đa 2 quả
     for(int c = 0; c < COLS; c++)
     {
-        if(c == 0)
+        uint8_t validColors[4];
+        int validCount = 0;
+
+        for (uint8_t color = 0; color < 4; color++)
         {
-            grid[0][c] = (Random() >> 16) % 4;
+            grid[0][c] = color;
+
+            int dummyRows[ROWS * COLS];
+            int dummyCols[ROWS * COLS];
+            int groupSize = FindConnectedGroup(0, c, color, dummyRows, dummyCols);
+
+            if (groupSize <= 2)
+            {
+                validColors[validCount++] = color;
+            }
+        }
+
+        // Tạm thời đặt lại thành trống
+        grid[0][c] = EMPTY_CELL;
+
+        if (validCount > 0)
+        {
+            uint8_t chosenIndex = (Random() >> 16) % validCount;
+            grid[0][c] = validColors[chosenIndex];
         }
         else
         {
-            if(((Random() >> 16) % 100) < 70)
+            uint8_t bestColor = 0;
+            int minSize = 999;
+            for (uint8_t color = 0; color < 4; color++)
             {
-                grid[0][c] = grid[0][c - 1];
+                grid[0][c] = color;
+                int dummyRows[ROWS * COLS];
+                int dummyCols[ROWS * COLS];
+                int groupSize = FindConnectedGroup(0, c, color, dummyRows, dummyCols);
+                if (groupSize < minSize)
+                {
+                    minSize = groupSize;
+                    bestColor = color;
+                }
             }
-            else
-            {
-                grid[0][c] = (Random() >> 16) % 4;
-            }
+            grid[0][c] = bestColor;
         }
     }
 
@@ -936,8 +904,10 @@ void GSPlayView::AddNewRow()
     if(CheckGameOver())
     {
         isGameOver = true;
-        // TODO: nếu có màn Game Over / màn Menu riêng, gọi chuyển màn tại đây, ví dụ:
-        // application().gotoGSMenuScreenBlockTransition();
+        presenter->saveHighScore(currentScore);
+        UpdateScoreUI();
+        gameoverContainer.setVisible(true);
+        gameoverContainer.invalidate();
     }
 
     oddOffset = !oddOffset;
@@ -959,4 +929,87 @@ bool GSPlayView::CheckGameOver()
 void GSPlayView::tearDownScreen()
 {
     GSPlayViewBase::tearDownScreen();
+}
+
+void GSPlayView::UpdateScoreUI()
+{
+    Score.invalidate();
+    totalScore.invalidate();
+
+    touchgfx::Unicode::snprintf(ScoreBuffer, SCORE_SIZE, "%d", currentScore);
+    touchgfx::Unicode::snprintf(totalScoreBuffer, TOTALSCORE_SIZE, "%d", currentScore);
+
+    Score.resizeToCurrentText();
+    totalScore.resizeToCurrentText();
+
+    Score.invalidate();
+    totalScore.invalidate();
+}
+
+void GSPlayView::InitializeGrid()
+{
+    // Hàng 0 luôn để TRỐNG, làm vùng đệm để viên đạn luôn có chỗ dính ngay từ đầu game.
+    // Số hàng bóng ban đầu: Màn 1 có 2 hàng, Màn 2 có 3 hàng, Màn 3 có 4 hàng.
+    int selectedStage = presenter->getSelectedStage();
+    int maxInitialRows = selectedStage + 1; // Stage 1 -> 3, Stage 2 -> 4, Stage 3 -> 5
+
+    oddOffset = false;
+
+    for(int r = 0; r < ROWS; r++)
+    {
+        for(int c = 0; c < COLS; c++)
+        {
+            if(r == 0 || r >= maxInitialRows)
+            {
+                grid[r][c] = EMPTY_CELL;
+                continue;
+            }
+
+            // Tìm màu sắc ngẫu nhiên sao cho không tạo thành cụm quá 2 quả cùng màu nằm cạnh nhau
+            uint8_t validColors[4];
+            int validCount = 0;
+
+            for (uint8_t color = 0; color < 4; color++)
+            {
+                grid[r][c] = color;
+
+                int dummyRows[ROWS * COLS];
+                int dummyCols[ROWS * COLS];
+                int groupSize = FindConnectedGroup(r, c, color, dummyRows, dummyCols);
+
+                if (groupSize <= 2)
+                {
+                    validColors[validCount++] = color;
+                }
+            }
+
+            // Tạm thời đặt lại thành trống
+            grid[r][c] = EMPTY_CELL;
+
+            if (validCount > 0)
+            {
+                uint8_t chosenIndex = (Random() >> 16) % validCount;
+                grid[r][c] = validColors[chosenIndex];
+            }
+            else
+            {
+                // Chọn màu có cụm nhỏ nhất để giảm thiểu liên kết cùng loại
+                uint8_t bestColor = 0;
+                int minSize = 999;
+                for (uint8_t color = 0; color < 4; color++)
+                {
+                    grid[r][c] = color;
+                    int dummyRows[ROWS * COLS];
+                    int dummyCols[ROWS * COLS];
+                    int groupSize = FindConnectedGroup(r, c, color, dummyRows, dummyCols);
+                    if (groupSize < minSize)
+                    {
+                        minSize = groupSize;
+                        bestColor = color;
+                    }
+                }
+                grid[r][c] = bestColor;
+            }
+        }
+    }
 }

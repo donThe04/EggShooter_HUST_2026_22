@@ -11,6 +11,10 @@ public:
     virtual ~StageView() {}
     virtual void setupScreen();
     virtual void tearDownScreen();
+
+    virtual void setStage1() override;
+    virtual void setStage2() override;
+    virtual void setStage3() override;
 protected:
 };
 
