@@ -117,6 +117,11 @@ private:
     bool FindSnapCell(int hitRow, int hitCol,int &targetRow, int &targetCol);
     // Xoá 1 nhóm ô khỏi lưới (set EMPTY_CELL + ẩn Image tương ứng)
     void RemoveGroup(int rows[], int cols[], int count);
+
+    int currentScore;
+    void UpdateScoreUI();
+    void InitializeGrid();
 };
 
 #endif
+

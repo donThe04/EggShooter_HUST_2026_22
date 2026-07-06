@@ -27,6 +27,10 @@ public:
 
     virtual ~GSPlayPresenter() {}
 
+    int getHighScore() const;
+    void saveHighScore(int score);
+    int getSelectedStage() const;
+
 private:
     GSPlayPresenter();
 

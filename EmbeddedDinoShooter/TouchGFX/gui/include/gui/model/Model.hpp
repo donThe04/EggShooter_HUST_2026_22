@@ -14,8 +14,23 @@ public:
     }
 
     void tick();
+
+    int getHighScore() const { return highScore; }
+    void saveHighScore(int score)
+    {
+        if (score > highScore)
+        {
+            highScore = score;
+        }
+    }
+
+    int getSelectedStage() const { return selectedStage; }
+    void setSelectedStage(int stage) { selectedStage = stage; }
+
 protected:
     ModelListener* modelListener;
+    int highScore;
+    int selectedStage;
 };
 
 #endif // MODEL_HPP

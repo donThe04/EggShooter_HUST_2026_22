@@ -380,7 +380,7 @@
           {
             "Type": "TextArea",
             "Name": "Score",
-            "Width": 92,
+            "Width": 73,
             "Height": 20,
             "TextId": "__SingleUse_B9WT",
             "TextRotation": "0",
@@ -389,7 +389,11 @@
               "Green": 33,
               "Blue": 89
             },
-            "AutoSize": true
+            "AutoSize": true,
+            "Wildcard1": {
+              "UseBuffer": true,
+              "BufferSize": 10
+            }
           },
           {
             "Type": "Container",
@@ -676,9 +680,9 @@
               {
                 "Type": "TextArea",
                 "Name": "totalScore",
-                "X": 32,
-                "Y": 55,
-                "Width": 92,
+                "X": 54,
+                "Y": 56,
+                "Width": 86,
                 "Height": 20,
                 "TextId": "__SingleUse_R3XR",
                 "TextRotation": "0",
@@ -687,7 +691,11 @@
                   "Green": 245,
                   "Blue": 245
                 },
-                "AutoSize": true
+                "AutoSize": true,
+                "Wildcard1": {
+                  "UseBuffer": true,
+                  "BufferSize": 10
+                }
               }
             ]
           }

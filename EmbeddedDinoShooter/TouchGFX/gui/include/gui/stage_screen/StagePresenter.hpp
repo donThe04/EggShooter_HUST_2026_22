@@ -27,6 +27,8 @@ public:
 
     virtual ~StagePresenter() {}
 
+    void setSelectedStage(int stage);
+
 private:
     StagePresenter();
 
