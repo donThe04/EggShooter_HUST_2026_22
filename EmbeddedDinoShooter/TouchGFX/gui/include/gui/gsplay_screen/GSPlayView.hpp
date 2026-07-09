@@ -30,6 +30,9 @@ public:
 
     virtual void exitgameoverClicked() override;
 
+    void playTone(uint32_t freq, uint32_t durationMs);
+    void playGameOverSound();
+
     void ResetGame();
 
     virtual void UpdateAim();

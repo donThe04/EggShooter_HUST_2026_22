@@ -7,6 +7,16 @@
 
 extern uint32_t gSeed;
 
+extern TIM_HandleTypeDef htim3;
+
+#define NOTE_DO   262
+#define NOTE_RE   294
+#define NOTE_MI   330
+#define NOTE_FA   349
+#define NOTE_SOL  392
+#define NOTE_LA   440
+#define NOTE_SI   494
+
 extern "C" void Joystick_Read(uint8_t *outX, uint8_t *outY);
 extern "C" uint8_t Button_IsPressed(void);
 
@@ -122,6 +132,59 @@ void GSPlayView::restartgameoverClicked()
 void GSPlayView::exitgameoverClicked()
 {
     application().gotoGSMenuScreenNoTransition();
+}
+
+//Âm thanh
+void GSPlayView::playTone(uint32_t freq, uint32_t durationMs)
+{
+    uint32_t period = 1000000 / freq;
+
+    __HAL_TIM_SET_AUTORELOAD(&htim3, period - 1);
+
+    __HAL_TIM_SET_COMPARE(
+        &htim3,
+        TIM_CHANNEL_2,
+        period / 2
+    );
+
+    HAL_TIM_PWM_Start(
+        &htim3,
+        TIM_CHANNEL_2
+    );
+
+    HAL_Delay(durationMs);
+
+    HAL_TIM_PWM_Stop(
+        &htim3,
+        TIM_CHANNEL_2
+    );
+}
+
+void GSPlayView::playGameOverSound()
+{
+    uint32_t melody[] =
+    {
+        NOTE_LA,
+        NOTE_SOL,
+        NOTE_FA,
+        NOTE_MI,
+        NOTE_RE
+    };
+
+    uint32_t duration[] =
+    {
+        200,
+        200,
+        200,
+        200,
+        500
+    };
+
+    for(int i = 0; i < 5; i++)
+    {
+        playTone(melody[i], duration[i]);
+        HAL_Delay(50);
+    }
 }
 
 uint32_t GSPlayView::Random()
@@ -293,6 +356,8 @@ void GSPlayView::handleTickEvent()
     if(isPressed && !wasButtonPressed)
     {
         FireBullet();
+        //Âm thanh bắn
+        playTone(700,50);
     }
     wasButtonPressed = isPressed;
 
@@ -410,7 +475,9 @@ void GSPlayView::UpdateBullet()
 
     if(CheckBulletCollision(hitRow, hitCol))
     {
-        int tr = -1, tc = -1;
+    	//Âm thanh va chạm
+    	playTone(400,100);
+    	int tr = -1, tc = -1;
 
         // Bước 1: thử tìm ô trống trong 6 ô lân cận trực tiếp
         if(!FindSnapCell(hitRow, hitCol, tr, tc))
@@ -482,6 +549,7 @@ void GSPlayView::UpdateBullet()
         if(groupCount >= MIN_GROUP_TO_POP)
         {
             RemoveGroup(groupRows, groupCols, groupCount);
+            playTone(900,80);
             currentScore += groupCount * 10;
             UpdateScoreUI();
         }
@@ -904,6 +972,7 @@ void GSPlayView::AddNewRow()
     if(CheckGameOver())
     {
         isGameOver = true;
+
         presenter->saveHighScore(currentScore);
         UpdateScoreUI();
         gameoverContainer.setVisible(true);
@@ -920,7 +989,8 @@ bool GSPlayView::CheckGameOver()
     {
         if(grid[ROWS - 1][c] != EMPTY_CELL)
         {
-            return true;
+        	playGameOverSound();
+        	return true;
         }
     }
     return false;
