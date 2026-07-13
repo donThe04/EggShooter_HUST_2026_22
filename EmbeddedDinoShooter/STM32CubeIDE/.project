@@ -360,6 +360,16 @@
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/gsplay_screen/GSPlayView.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/gui/HighScorePresenter.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/highscore_screen/HighScorePresenter.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/gui/HighScoreView.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/highscore_screen/HighScoreView.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/gui/IntroScreenPresenter.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/introscreen_screen/IntroScreenPresenter.cpp</locationURI>
@@ -375,24 +385,24 @@
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/model/Model.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/gui/Screen1Presenter.cpp</name>
+			<name>Application/User/gui/Screen3Presenter.cpp</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/screen1_screen/Screen1Presenter.cpp</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/screen3_screen/Screen3Presenter.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/gui/Screen1View.cpp</name>
+			<name>Application/User/gui/Screen3View.cpp</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/screen1_screen/Screen1View.cpp</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/screen3_screen/Screen3View.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/gui/Screen2Presenter.cpp</name>
+			<name>Application/User/gui/Screen4Presenter.cpp</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/screen2_screen/Screen2Presenter.cpp</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/screen4_screen/Screen4Presenter.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/gui/Screen2View.cpp</name>
+			<name>Application/User/gui/Screen4View.cpp</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/screen2_screen/Screen2View.cpp</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/gui/src/screen4_screen/Screen4View.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/gui/StagePresenter.cpp</name>
@@ -505,19 +515,24 @@
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/gui_generated/src/gsplay_screen/GSPlayViewBase.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/HighScoreViewBase.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/gui_generated/src/highscore_screen/HighScoreViewBase.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/IntroScreenViewBase.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/gui_generated/src/introscreen_screen/IntroScreenViewBase.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/generated/Screen1ViewBase.cpp</name>
+			<name>Application/User/generated/Screen3ViewBase.cpp</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/gui_generated/src/screen1_screen/Screen1ViewBase.cpp</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/gui_generated/src/screen3_screen/Screen3ViewBase.cpp</locationURI>
 		</link>
 		<link>
-			<name>Application/User/generated/Screen2ViewBase.cpp</name>
+			<name>Application/User/generated/Screen4ViewBase.cpp</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/gui_generated/src/screen2_screen/Screen2ViewBase.cpp</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/gui_generated/src/screen4_screen/Screen4ViewBase.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/StageViewBase.cpp</name>

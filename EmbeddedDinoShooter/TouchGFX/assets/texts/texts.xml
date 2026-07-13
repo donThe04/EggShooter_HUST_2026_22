@@ -6,6 +6,15 @@
   <Texts>
     <TextGroup Id="Group1" />
     <TextGroup Id="Unsorted">
+      <Text Id="highScoreValue" Alignment="Left" TypographyId="Default">
+        <Translation Language="GB">Score: &lt;value&gt;</Translation>
+      </Text>
+      <Text Id="ResourceId1" Alignment="Left" TypographyId="Default">
+        <Translation Language="GB">New Text</Translation>
+      </Text>
+      <Text Id="T_HIGHSCORE_VALUE" Alignment="Center" TypographyId="Default">
+        <Translation Language="GB">&lt;highScoreValue&gt;</Translation>
+      </Text>
       <Text Id="__SingleUse_R3XR" Alignment="Center" TypographyId="Default">
         <Translation Language="GB">&lt;value&gt;</Translation>
       </Text>
