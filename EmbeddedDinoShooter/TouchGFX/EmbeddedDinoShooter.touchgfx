@@ -265,9 +265,9 @@
             "Type": "FlexButton",
             "Name": "btn_back",
             "X": 9,
-            "Y": 264,
-            "Width": 50,
-            "Height": 50,
+            "Y": 258,
+            "Width": 51,
+            "Height": 56,
             "Alpha": 0,
             "ButtonTrigger": {
               "Type": "ClickButtonTrigger"
@@ -275,8 +275,8 @@
             "ButtonStyles": [
               {
                 "Type": "BoxWithBorderButtonStyle",
-                "Width": 50,
-                "Height": 50,
+                "Width": 51,
+                "Height": 56,
                 "LockToFlexButtonSize": true,
                 "BorderSize": 5,
                 "ColorReleased": {
@@ -335,6 +335,18 @@
               "Type": "ActionGotoScreen",
               "ScreenTransitionType": "ScreenTransitionBlock",
               "ActionComponent": "IntroScreen"
+            }
+          },
+          {
+            "InteractionName": "Interaction4",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "btn_highScore"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionNone",
+              "ActionComponent": "HighScore"
             }
           }
         ]
@@ -1118,12 +1130,105 @@
         ]
       },
       {
-        "Name": "Screen2",
+        "Name": "HighScore",
+        "Components": [
+          {
+            "Type": "FlexButton",
+            "Name": "btn_back",
+            "X": 185,
+            "Y": 258,
+            "Width": 51,
+            "Height": 56,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 51,
+                "Height": 56,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Green": 102,
+                  "Blue": 153
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Green": 51,
+                  "Blue": 102
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
+          },
+          {
+            "Type": "Image",
+            "Name": "image1",
+            "Width": 240,
+            "Height": 320,
+            "RelativeFilename": "intro_bg.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "image11",
+            "X": 180,
+            "Y": 258,
+            "Width": 60,
+            "Height": 62,
+            "RelativeFilename": "btn_back.png"
+          },
+          {
+            "Type": "TextArea",
+            "Name": "textAreaScore",
+            "X": 41,
+            "Y": 136,
+            "Width": 159,
+            "Height": 24,
+            "TextId": "T_HIGHSCORE_VALUE",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 158,
+              "Green": 14,
+              "Blue": 33
+            },
+            "Wildcard1": {
+              "TextId": "highScoreValue",
+              "UseBuffer": true,
+              "BufferSize": 10
+            }
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "Interaction1",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "btn_back"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionNone",
+              "ActionComponent": "GSMenu"
+            }
+          }
+        ]
+      },
+      {
+        "Name": "Screen3",
         "Components": [],
         "Interactions": []
       },
       {
-        "Name": "Screen1",
+        "Name": "Screen4",
         "Components": [],
         "Interactions": []
       }
