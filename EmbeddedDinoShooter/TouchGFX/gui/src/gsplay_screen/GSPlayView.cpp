@@ -479,12 +479,8 @@ void GSPlayView::UpdateBullet()
     	playTone(400,100);
     	int tr = -1, tc = -1;
 
-        // Bước 1: thử tìm ô trống trong 6 ô lân cận trực tiếp
         if(!FindSnapCell(hitRow, hitCol, tr, tc))
         {
-            // Bước 2 (an toàn): không tìm thấy lân cận trực tiếp trống
-            // -> tìm ô trống GẦN NHẤT trên toàn lưới (tuyệt đối không ghi đè
-            //    lên quả đang có, tránh làm mất dữ liệu / thay màu quả cũ)
             float bestDist = 1e9f;
             bool foundAny = false;
 
@@ -512,8 +508,7 @@ void GSPlayView::UpdateBullet()
                 }
             }
 
-            // Trường hợp cực hiếm: lưới đã đặc kín 100% (không còn ô trống nào)
-            // -> lúc này mới đành chấp nhận hủy viên đạn (không ghi đè quả cũ).
+
             if(!foundAny)
             {
                 isBulletFlying = false;
@@ -536,11 +531,11 @@ void GSPlayView::UpdateBullet()
         bullet.setXY((int)bulletX, (int)bulletY);
         bullet.invalidate();
 
-        // 3. tắt bullet
+
         isBulletFlying = false;
         bullet.setVisible(false);
 
-        // 4. Kiểm tra nhóm cùng màu để nổ
+
         int groupRows[ROWS * COLS];
         int groupCols[ROWS * COLS];
         int groupCount = FindConnectedGroup(tr, tc, bulletColor,
@@ -554,10 +549,8 @@ void GSPlayView::UpdateBullet()
             UpdateScoreUI();
         }
 
-        // 5. Chỉ render đúng 1 lần
         RenderGrid();
 
-        // 6. Kiểm tra thua: nếu quả vừa dính nằm ở hàng đáy cùng -> DỪNG GAME
         if(CheckGameOver())
         {
             isGameOver = true;
@@ -571,7 +564,7 @@ void GSPlayView::UpdateBullet()
     }
 
 
-    // Va chạm trái/phải màn hình -> nảy lại (đơn giản hoá: đảo vận tốc X)
+
     if(bulletX < 0.0f)
     {
         bulletX = 0.0f;
@@ -583,19 +576,6 @@ void GSPlayView::UpdateBullet()
         bulletVX = -bulletVX;
     }
 
-    // Kiểm tra va chạm với lưới hoặc "trần" trên cùng
-//    if(CheckBulletCollision())
-//    {
-//        // Đã xử lý xong (dính lưới hoặc nổ nhóm), dừng viên đạn
-//        isBulletFlying = false;
-////        bullet.setVisible(false);
-////        bullet.invalidate();
-//        return;
-//    }
-
-    // Phòng hờ: nếu vì lý do gì đó viên đạn vượt qua cả vùng trần mà chưa được
-    // CheckBulletCollision() bắt được (ví dụ yOffset thay đổi giữa lúc bắn),
-    // ép buộc gắn nó vào hàng 0 ngay tại đây, không để biến mất vô ích.
     if(bulletY < (float)yOffset - (float)CELL_H)
     {
         int forceCol;
@@ -862,9 +842,6 @@ bool GSPlayView::CheckBulletCollision(int &hitRow, int &hitCol)
     float bulletCX = bulletX + 16.0f;
     float bulletCY = bulletY + 16.0f;
 
-    // Bán kính va chạm ~ đúng kích thước thật của quả trứng (đường kính ~32px -> bán kính ~16px),
-    // cộng thêm chút dung sai (2px) để không quá gắt. Trước đây để 32.0f (gấp đôi kích thước thật)
-    // khiến viên đạn bị "hút dính" cả khi nhắm đúng vào khe hở giữa 2 quả -> bắn xuyên khe rất khó.
     float collideRadius = 18.0f;
 
     float bestDistSq = 1e9f;
@@ -965,8 +942,6 @@ void GSPlayView::AddNewRow()
         }
     }
 
-    // (Không cần gọi RenderGrid() ở đây nữa - handleTickEvent() sẽ gọi lại
-    //  ngay sau khi hàm này return, tránh render trùng lặp trong cùng 1 tick.)
 
     // 3. Kiểm tra thua: nếu hàng đáy cùng (ROWS - 1) đã có trứng -> DỪNG GAME
     if(CheckGameOver())
